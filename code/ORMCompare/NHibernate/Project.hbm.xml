@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping assembly="ORMCompare" namespace="ORMCompare.NHibernateModel" xmlns="urn:nhibernate-mapping-2.2">
+  <class name="Project" table="Project" lazy="true" >
+    <id name="Id" column="ID" />
+    <property name="Name">
+      <column name="Name" sql-type="nvarchar" not-null="false" />
+    </property>
+  </class>
+</hibernate-mapping>

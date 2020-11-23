@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping assembly="ORMCompare" namespace="ORMCompare.NHibernateModel" xmlns="urn:nhibernate-mapping-2.2">
+  <class name="TeamMember" table="TeamMember" lazy="true" >
+    <id name="Id" column="ID" />
+    <many-to-one name="Team" insert="false" update="false" cascade="none">
+      <column name="TeamID" sql-type="int" not-null="true"  />
+    </many-to-one>
+    <property name="FirstName">
+      <column name="FirstName" sql-type="nvarchar" not-null="true" />
+    </property>
+    <property name="TeamID">
+      <column name="TeamID" sql-type="int" not-null="true" />
+    </property>
+    <property name="LastName">
+      <column name="LastName" sql-type="nvarchar" not-null="true" />
+    </property>
+    <property name="DateOfBirth">
+      <column name="DateOfBirth" sql-type="datetime" not-null="true" />
+    </property>
+  </class>
+</hibernate-mapping>

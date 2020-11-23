@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "ORM Comparison";
+}
+<link href="~/Content/dev-style.css" rel="stylesheet" />
+<link href="~/DataTables/datatables.min.css" rel="stylesheet" />
+
+@section scripts{
+    <script src="~/DataTables/DataTables-1.10.21/js/jquery.dataTables.js"></script>
+    <script src="~/DataTables/DataTables-1.10.21/js/dataTables.bootstrap.min.js"></script>
+}
+<div class="row jumbotron">
+    <h1>ORM Comparison</h1>
+    <p class="lead">We compare different ORM frameworks and provide you insight on how each is beneficial to your requirements.</p>
+    <p><a href="#" onclick="GetComparisonStatForDifferentORM()" class="btn btn-primary btn-lg">Compare Performance</a></p>
+</div>
+
+<h2 class="loader" style="display:none;">
+    Please wait while we are processing your request. Thank you !!
+</h2>
+
+<div class="row result" style="display:none;">
+    <h4 class="content"></h4>
+    <div class="tab">
+        <button id="btnShowTeamMemberByID" class="tablinks resultByMemberTab" onclick="openTab(event, 'resultByMemberTab')">By Team Member</button>
+        <button class="tablinks resultByTeamTab" onclick="openTab(event, 'resultByTeamTab')">By Team</button>
+        <button class="tablinks resultByProjectTab" onclick="openTab(event, 'resultByProjectTab')">By Project</button>
+    </div>
+
+    @*Show Result By Single Team Member Fetch*@
+    <div id="resultByMemberTab" class="tabcontent">
+        <div class='heading' style="margin-top:10px;margin-bottom:10px;">
+            Get a single team member by TeamMemberID <br />
+            Total Result Count : <span class="countMemberByMember" style="font-weight:bold;"></span>
+        </div>
+        <table class="resultBySpecific table table-striped table-bordered" style="width:100%"><thead><tr> <th></th> <th></th> <th></th><th></th><th></th><th></th> </tr> </thead> <tbody></tbody></table>
+    </div>
+
+    @*Show Result By All Team Member Fetch of a Team*@
+    <div id="resultByTeamTab" class="tabcontent">
+        <div class='heading' style="margin-top:10px;margin-bottom:10px;">
+            Get all team members of a team by TeamID <br />
+            Total Result Count : <span class="countMemberByTeam" style="font-weight:bold;"></span>
+        </div>
+        <table class="resultByTeam table table-striped table-bordered" style="width:100%"><thead><tr> <th></th> <th></th> <th></th><th></th><th></th><th></th></tr> </thead> <tbody></tbody></table>
+    </div>
+
+    @*Show Result By All Team Member of Team Working on a Project*@
+    <div id="resultByProjectTab" class="tabcontent">
+        <div class='heading' style="margin-top:10px;margin-bottom:10px;">
+            Get all team members of team(s) which are working on a specific project by ProjectID <br />
+            Total Result Count : <span class="countMemberByProject" style="font-weight:bold;"></span>
+        </div>
+        <table class="resultByProject table table-striped table-bordered" style="width:100%"><thead><tr> <th></th> <th></th> <th></th><th></th><th></th><th></th> </tr> </thead> <tbody></tbody></table>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function GetComparisonStatForDifferentORM() {
+
+        $(".loader").show();
+        $(".result").hide();
+
+        $.ajax({
+            type: 'GET',
+            dataType: 'html',
+            url: '/home/GetComparsionDetails',
+            success: function (result) {
+
+                result = JSON.parse(result);
+
+                var content = "Showing below result based on :<br />";
+                content += "<br />Projects:<b> " + result.totalProjectCount + "</b>";
+                content += ", Teams:<b> " + result.totalTeamCount + "</b>";
+                content += ", Team Members:<b> " + result.totalTeamMemberCount + "</b>";
+
+                $(".content").html(content);
+
+                $('.resultBySpecific').DataTable().destroy();
+                $(".resultBySpecific").dataTable({
+                    data: result.tableByMember,
+                    columns: [
+                        { title: "Iteration" },
+                        { title: "EF (in ms)" },
+                        { title: "EF Core (in ms)" },
+                        { title: "Dapper (in ms)" },
+                        { title: "NHibernate (in ms)" },
+                        { title: "ADO.Net (in ms)" }
+                    ],
+                    "paging": false,
+                    responsive: true,
+                    "order": [[0, "asc"]]
+                });
+
+                $('.resultByTeam').DataTable().destroy();
+                $(".resultByTeam").dataTable({
+                    data: result.tableByTeam,
+                    columns: [
+                        { title: "Iteration" },
+                        { title: "EF (in ms)" },
+                        { title: "EF Core (in ms)" },
+                        { title: "Dapper (in ms)" },
+                        { title: "NHibernate (in ms)" },
+                        { title: "ADO.Net (in ms)" }
+                    ],
+                    "paging": false,
+                    responsive: true,
+                    "order": [[0, "asc"]]
+                });
+
+                $('.resultByProject').DataTable().destroy();
+                $(".resultByProject").dataTable({
+                    data: result.tableByProject,
+                    columns: [
+                        { title: "Iteration" },
+                        { title: "EF (in ms)" },
+                        { title: "EF Core (in ms)" },
+                        { title: "Dapper (in ms)" },
+                        { title: "NHibernate (in ms)" },
+                        { title: "ADO.Net (in ms)" }
+                    ],
+                    "paging": false,
+                    responsive: true,
+                    "order": [[0, "asc"]]
+                });
+
+                $(".countMemberByMember").html(result.totalMemberFetchedByMember);
+                $(".countMemberByTeam").html(result.totalMemberFetchedByTeam);
+                $(".countMemberByProject").html(result.totalMemberFetchedByProject);
+
+                $("#btnShowTeamMemberByID").click();
+                $(".result").show();
+            },
+            error: function (ex) { },
+            complete: function () {
+                $(".loader").hide();
+            }
+        });
+    }
+
+    // Maintain Tabs
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        document.getElementById(tabName).style.display = "block";
+        $('.' + tabName).addClass("active");
+    }
+</script>
